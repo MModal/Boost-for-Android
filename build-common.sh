@@ -270,10 +270,6 @@ check_md5sum ()
 }
 
 # Find if a given shell program is available.
-# We need to take care of the fact that the 'which <foo>' command
-# may return either an empty string (Linux) or something like
-# "no <foo> in ..." (Darwin). Also, we need to redirect stderr
-# to /dev/null for Cygwin
 #
 # $1: variable name
 # $2: program name
@@ -283,14 +279,7 @@ check_md5sum ()
 #
 find_program ()
 {
-    local PROG
-    PROG=`which $2 2>/dev/null`
-    if [ -n "$PROG" ] ; then
-        if pattern_match '^no ' "$PROG"; then
-            PROG=
-        fi
-    fi
-    eval $1="$PROG"
+    eval $1=`command -v $2`
 }
 
 prepare_download ()
@@ -311,7 +300,7 @@ download_file ()
         if [ -n "$CMD_WGET" ] ; then
             run $CMD_WGET -O $2 $1 
         elif [ -n "$CMD_CURL" ] ; then
-            run $CMD_CURL -o -L $2 $1
+            run $CMD_CURL -L -o $2 $1
         else
             echo "Please install wget or curl on this machine"
             exit 1
